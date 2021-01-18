@@ -1,0 +1,35 @@
+---
+title: "Manuscript_Draft"
+author: "Beating Bu"
+date: "1 December 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## **Markdown Draft for the model masuscript**
+
+This markdown is a collaborative draft for the production of a manuscript about the joint possum-mosquito SDM.
+
+The current collaborating authors (in no particular order) are: Saras Windecker, Shona Elliot- Kerr 
+
+Other acknowledgements should be made to: [add any people who collaborated but don't want authorship]
+
+
+The aim of the file is to collect points for the , a target journal 
+
+## Introduction notes
+
+Add intro notes here
+
+## Method notes
+```{r data read, echo= FALSE}
+mossie.dat <- read.csv("mossie_SDM/data_mossie/final.mosquito.data.csv")
+```
+
+**Mosquito Methods**
+[information about collection methods]
+Egg trap data was collected by Veronique Paris, Alys Young (and others?). The traps were set out for 7 days across Greater Melbournce with two traps per gps location. The adult data used [CO2 traps]
+

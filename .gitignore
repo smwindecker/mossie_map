@@ -37,3 +37,9 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+data-raw/
+data/
+data_mossie/
+out-of-date/
+output_mossie/

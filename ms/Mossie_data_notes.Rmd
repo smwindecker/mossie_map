@@ -1,0 +1,246 @@
+---
+title: "Mossie_data_notes"
+author: "Shona Elliot- Kerr"
+date: "7 August 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "C:/Users/Shona/Dropbox/BU_risk/mossie_SDM")
+```
+
+## **Mosquito Data Exploration and Summary**
+
+This is an accesible doccument to keep track of the mosquito data that we currently have. All of the figures/exploration detailed in this file, come from the mossie_dat_cleaning.R script. It is also annotated and should be easily understood, but this is an explaination of the key findings.
+
+### Jane Oliver Data
+
+**this explaination is for the small test set of data that I was given, skip to the Metadata Info if you want to understand what the final csv looks like**
+
+Jane and her team provided us with three data sets: Trapped_species and Mornington_data, were two sheets from the same excel spreadsheet file. 
+
+I initially started with the mornington_data spreadsheet. In it's raw form, there were 66 records and 53 variables. Every row had a unique i..ID and Lat,Long coordinates.
+
+
+```{r Jane.data.read, cache=TRUE, echo= FALSE, results='asis'}
+mornington.stats <- read.csv("data_mossie/mornington.stats.csv")
+mornington.clean <- read.csv("data_mossie/mornington.clean.csv")
+trapped.sp.raw <- read.csv("Old scripts and data/Trapped_species.csv")
+
+knitr::kable(mornington.stats, caption = "The number of rows which fulfilled each query")
+```
+
+From this exploration, I cleaned the data to only contain successful trap pickup attempts (n= 58). This implies that the traps with no counted mosquitos (n= 11) are true absences. I also removed the the majority of the columns so that only eight remained: `r names(mornington.clean)` . There are fourteen distinct site names, and 28 unique coordinate points
+
+The Trapped_species sheet renamed the mornington_raw$i..ID column to "ADULT_RECORD_ID" and included a distinct i..ID column which has no clear correlation to anything. 
+
+In the data_mod_total_merged csv the same site ID column is called "Event_ID". There is a 100% match with the mornington_data sites. To confirm that it was the same information I plotted the coordinates. 
+
+
+```{r coord.overlap.plot, cache= TRUE, echo= FALSE}
+knitr::include_graphics("output_mossie/mornington-vs-modified_points.png")
+```
+
+Due to the close proximity of the records within sites, you can't see all 28 unique coordinate points. But there is perfect overlap of "mornington data" (crosses), with the "data_mod_total_merged" (circles).
+
+The data_mod_total_merged does have the merged trapped_species information, but the counts have been aggregated by sex and species so there is only a total count (one row) for each site instead of multiple rows. 
+
+Instead of the scintific names for the species there is a "trapped_species" column which has number IDs for the species, but no clear metadata to link the number to the species. If we want to subset the data for particular species, it would be easier to do it by the scientific name in the manually merged column. There are nine different species that were caught in the traps: `r unique(trapped.sp.raw$SCIENTIFIC_NAME)`
+
+### Metadata info for Jane's Mornington data
+
+I started off by removing the failed traps and then exploring the amount of available data
+
+
+```{r Jane.data.read2, cache=TRUE, echo= FALSE, results='asis'}
+a.noto.final <- read.csv("data_mossie/adult.a.noto.final.csv")
+trapdat.stat <- read.csv("data_mossie/trapdat.stat.csv")
+
+
+knitr::kable(trapdat.stat, caption = "Basic information about the data")
+```
+
+
+From this we can see that over 32 trapping days (11/11/19 - 19/03/2020), 1347 traps were set. 686 traps contained at least one species of mosquito, and 83% of those (n= 566) had *Aedes notoscriptus*. There were also 661 traps which contained no mosquito species. The total number of a.noto absences is 781.
+
+
+Details of the full cleaning process can be found in the mossie_dat_cleaning.R script. The final product is adult.a.noto.final.csv . It contains the 686 *A.notoscriptus* presences as well as the 781 trap absences for the species. *A.notoscriptus* is currently the only species that I have investigated, but the code is set up so that it would be easy to create an identical final dataframe for any other species of interest. 
+
+The final columns in the dataframe are: 
+
+**X**               Row numbers (added as a result of saving the doccument as a csv)
+
+**trap_ID**         The unique number given to each trap- this links the TrapData to the adults_counted in the raw MozData
+
+**SITE_NAME**       Name of the site
+
+**SITE_LONGITUDE**  Longitude coordinate
+
+**SITE_LATITUDE**   Latitude coordinate
+
+**hours**           Duration of hours that the the trap was at the site for
+
+**SCIENTIFIC_NAME** This distinguished presences ("Aedes notoscriptus") from absences ("absence")
+
+**NUM_FEMALES**     The number of females counted for the species
+
+**NUM_MALES**       The number of males counted for that species
+
+**TOTAL_NUM_INSECTS** The total number of insects counted for presences (absences = 0)
+
+**PA**              A binary presence (1), absence (0) column
+
+**set_date**        The date yyyy.mm.dd that the trap was placed
+
+
+
+This gives youa very basic idea of what the data looks like. Crosses (x) denote absences and circles show *A.notosctiptus* presences. The colour roughly indicates the total number of adults that were counted in the trap. 
+
+
+```{r a.noto.pres.plot, cache= TRUE, echo= FALSE}
+knitr::include_graphics("output_mossie/a.noto_pres.abs.png")
+```
+
+
+### Veronique Egg Count Data
+
+After reading the papers suggested by Ary Hoffmann- Tantowijoyo et al., 2015, Hoffmann et al., 2014 and Manica et al,. 2017 there are ways to estimate adult or biting female abundance from ovitrap counts. In this stage, I am not sure that we have enough information to make meaningful estimates.
+
+Like all of the other data, I started off with an exploration:
+```{r vero.egg.dat, cache=TRUE, echo= FALSE, results='asis'}
+egg.stat <- read.csv("data_mossie/egg.stat.csv")
+
+knitr::kable(egg.stat, caption = "Exploring the egg count data")
+```
+
+Veronique placed 692 traps at 345 sites. Each site a pair of traps (execpt for one site with four). 
+
+The counts are exclusively for A.notoscriptus and show the total number of eggs that were counted over the course of a week.
+
+There were 59 traps with NA egg counts (traps_lost) and 205 traps with an egg count of zero (which I am considering true absences). 
+
+From the presence traps (n=428), the mean number of eggs is 56.
+
+I cleaned the NAs out and then added two extra columns to the raw data:
+**site** and **trap** . 
+
+Site gives an ID number for every unique GPS location (n= 335) and trap is an index of A or B indicating that there are two traps at each site.
+
+The next thing I explored was the relationship between traps (A and B) at a given site. I wanted to see if the egg count numbers were the similar between the traps. Note: this exploration only considers the 296 site which had two successful traps at the site. 
+
+There is only a weak positive relationship between the egg count of individual traps at the one site. The blue colour isn't very meaningful, but it is to demonstrate that each point represents a distinct site:
+```{r lm-plot1, cache= TRUE, echo= FALSE}
+knitr::include_graphics("output_mossie/A~B.lm.all.png")
+```
+
+Even if we exclude the outliers and only use egg counts <= 500 (n= 292 sites)
+```{r lm-plot2, cache= TRUE, echo= FALSE}
+knitr::include_graphics("output_mossie/A~B.lm.500.png")
+```
+
+This shows that there is variation in the precision of the egg count data. Ultimately we are just going to sum the number of eggs in each trap and then use the number of traps (one or two) as an offset.
+
+In the cleaned dataset for the eggs, the individual egg counts for the traps have been retained in case we want to look at the vatiation within a site.
+
+The final cleaned egg count data is named "egg.dat.final.csv" in the data_mossie folder. The full cleaning process can be found in the data cleaning script.
+
+The retained columns are:
+
+**X**               Row numbers (added as a result of saving the doccument as a csv)
+
+**location**        The name of the area and month + year of the data collection (e.g Ivanhoe Jan20) 
+
+**traps.set**       The date yyyy-mm-dd that the traps were set
+
+**traps.pick.up**   The date yyyy-mm-dd that the traps collected. Should be seven days afterward the trap.set
+
+**long**            Longitude coordinate
+
+**lat**             Latitude coordinate
+
+**eggs**            The number of eggs counted in the trap
+
+**site**            The site number correspondes with a unique coordinate. Most sites had two traps, but some had one
+
+**trap**            A binary variable (A/B) distinguishing the two traps at a given site (when there were two).
+
+
+### Visualising the spatial and temporal overlap between data types
+
+Before combining the two data types I thought it might be good to visualise how they were spatially and temporally distributed:
+
+Veronique's egg data is spatially more dispersed, with some sites overlapping areas where possum surveys were done- and Jane's adult data was collected intensively in the Mornington Peninsula:
+
+```{r spatial overlap, cache= TRUE, echo= FALSE}
+knitr::include_graphics("output_mossie/spatial_overlap.png")
+```
+
+Jane's adult collection started earlier (November 2019) and finished earlier (March 2020) than Veronique's egg data collection (Jan-April 2020): This figure shows the mean count (eggs or adults) per site each time period (total/number of sites). 
+
+```{r temporal overlap, cache= TRUE, echo= FALSE}
+knitr::include_graphics("output_mossie/temporal_overlap.png")
+```
+
+## **Final combined dataframe**
+
+Before combining the dataframes I summed the indiviual trap counts in the egg data, so there was only have one row per site. I also added columns to both dataframes to indicate the number of traps per site- always one for adults and 1-2 for eggs, and the type of data collected (egg or adult).
+
+The resulting dataframe- final.merged.data, has 8 columns:
+
+**set_date**        The date the traps were set in yyyy-mm-dd format
+
+**longitude**       Longitude coordinate
+
+**latitude**        Latitude coordinate
+
+**count_data**      The number individual *A.notoscriptus* (eggs or adults) counted at the site
+
+**PA**              A binary column indicating the presence (1) or absence (0) of *A.notoscriptus* . In total there were 840 presences (566 adults) and 843 absences (782 adults). 
+
+**egg**             A binary colummn to differentiate egg count data (1) from adult count data (0), n= 1348 adult records and 335 egg records.
+
+**n_traps**         The offset variable denoting if egg sites had 1 or 2 traps set at the same coordinates. There were 295 egg sites with 2 traps, 1 with 4 traps and 39 with 1. All adult sites had one trap.
+
+**collect_date**    This date is used to determine when the start of the temporally explicit (weather) data is. Collection is one day after the adult traps were set, and seven days after the egg traps were set.
+
+**meteo_start**     This is the first date that the meteorological data is going to be taken. It starts six weeks before the collection date for the adults, and four weeks before the collection date for the egg data.
+
+**meteo_end**       Set four weeks after the meteo start date, the final day that the temporally explicit data will be extracted for
+
+**static_date**     For the static weather dates (windspeed), the data is extracted in the month of the collection date. This column has the date set to the first day of the month that the mosquito data was collected. 
+
+
+
+## **Model Building** 
+
+The approach for this model is to start simple and add complexity as needed. If there are large residuals in the first glm, we can evaluate them (with the DHARMa pacage) against additional additional explanatory variables to see what the model might be missing.
+
+### Explanatory Variables
+
+This is the justification and source of the explainitory variables for the model. Meterological variables are more time sensitve than distance and density variables so they might need to be considered seperately for eggs and adults.
+
+#### **Temperature**
+
+Temperature is important for larval development. For the adult data it might be beneficial to get the mean or max for the day that the traps were set. For the eggs we might want the fortnightly average to represent the duration of the time that the traps were set. 
+
+
+#### **Windspeed**
+Windspeed affects the dessication rate of container breeders. So it is important for hatching
+
+#### **Precipitation**
+This affects adult breeding activity but not the egg trap data directly collection because we put the water containters out for the mosquitos. 
+-cumulative rainfall in fortnight prior for adult actvity
+
+#### **Evaporation**
+Because the a.noto lifecycle requires a cycle of wet containers (to lay the eggs) followed by dry containers (for the eggs to dry and hatch), including some information about evaporation might be informative. 
+
+BOM has average monthly evaopration data, which is too coarse to be useful. There are daily mean evapotranspiration estimates which consider temperature, windspeed and humidity. It is something to consider, or perhaps just adding humidity to the model since temp and wind will already be there.
+
+#### **Distance to Coast**
+Saltspray can provide favourable water conditions for egg laying
+
+#### **Measurement of human density**
+Human density is likely to play a role in proviing ephemiral water pools, such as roofing gutters, unmaintained bird baths and other containers for mosquitos to lay their eggs in.
+
+
